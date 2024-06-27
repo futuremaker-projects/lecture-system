@@ -6,14 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserAccount {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,11 +21,23 @@ public class UserAccount {
     @Column(columnDefinition = "varchar(50) comment '사용자명'")
     private String name;
 
-    public UserAccount(Long id) {
+    public User(Long id) {
         this.id = id;
     }
 
-    public static UserAccount of(long userId) {
-        return new UserAccount(userId);
+    public static User of(long userId) {
+        return new User(userId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User user)) return false;
+        return id != null && id.equals(user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

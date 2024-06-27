@@ -8,10 +8,10 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrorCode {
 
-    CONTENT_NOT_FOUND(HttpStatus.GONE, "CONTENT_NOT_FOUND"),
+    CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CONTENT_NOT_FOUND"),
     CONFLICT(HttpStatus.CONFLICT, "CONFLICT"),
 
-    USER_EXISTED(HttpStatus.CONFLICT, "USER_EXISTED"),
+    USER_EXISTED(HttpStatus.GONE, "USER_EXISTED"),
 
     ;
 

@@ -1,15 +1,16 @@
 package org.enrollment.lecture.application.service.impl;
 
-import org.enrollment.lecture.application.service.LectureService;
-import org.enrollment.lecture.domain.dto.lecture.LectureRequestDto;
-import org.enrollment.lecture.domain.dto.lecture.LectureResponseDto;
-import org.enrollment.lecture.domain.entity.Enrollment;
-import org.enrollment.lecture.domain.entity.Lecture;
-import org.enrollment.lecture.domain.entity.UserAccount;
+import org.enrollment.lecture.controller.dto.enrollment.EnrollmentRequestDto;
+import org.enrollment.lecture.controller.dto.enrollment.EnrollmentResponseDto;
+import org.enrollment.lecture.controller.dto.lectureinfo.LectureInfoResponseDto;
+import org.enrollment.lecture.domain.entity.*;
+import org.enrollment.lecture.domain.repository.EnrollmentHistoryRepository;
+import org.enrollment.lecture.domain.service.LectureService;
+import org.enrollment.lecture.controller.dto.lecture.LectureResponseDto;
+import org.enrollment.lecture.domain.repository.EnrollmentRepository;
+import org.enrollment.lecture.domain.repository.LectureRepository;
+import org.enrollment.lecture.domain.repository.UserRepository;
 import org.enrollment.lecture.infra.exception.ApplicationException;
-import org.enrollment.lecture.infra.repository.enrollment.EnrollmentRepository;
-import org.enrollment.lecture.infra.repository.lecture.LectureRepository;
-import org.enrollment.lecture.infra.repository.userAccount.UserAccountRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,26 +19,24 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.BDDAssertions.tuple;
 import static org.mockito.BDDMockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
 class LectureServiceTest {
 
-    @InjectMocks
-    LectureService sut;
+    @InjectMocks LectureService sut;
 
-    @Mock
-    LectureRepository lectureRepository;
-    @Mock
-    UserAccountRepository userAccountRepository;
-    @Mock
-    EnrollmentRepository enrollmentRepository;
+    @Mock LectureRepository lectureRepository;
+    @Mock UserRepository userRepository;
+    @Mock EnrollmentRepository enrollmentRepository;
+    @Mock EnrollmentHistoryRepository enrollmentHistoryRepository;
 
     @DisplayName("강의 id와 사용자 id로 특강을 수강한다")
     @Test
@@ -45,24 +44,29 @@ class LectureServiceTest {
         // given
         long lectureId = 1L;
         long userId = 1L;
-        long enrollmentId = 1L;
         int userLimit = 5;
-        String lectureName = "special-lecture";
-        LectureRequestDto requestDto = LectureRequestDto.of(lectureId, userId);
-        Lecture lecture = Lecture.of(lectureId, lectureName, userLimit);
-        UserAccount userAccount = UserAccount.of(userId);
-        Enrollment enrollment = Enrollment.of(enrollmentId, lectureId, userId);
+        long enrollmentId = 1L;
 
+        // 강의 조회
+        Lecture lecture = Lecture.of(lectureId, userLimit);
         given(lectureRepository.findById(lectureId)).willReturn(lecture);
-        given(userAccountRepository.findById(userId)).willReturn(userAccount);
+        // 학생 조회
+        User user = User.of(userId);
+        given(userRepository.findById(userId)).willReturn(user);
+        // 해당 강의에 학생을 등록
+        Enrollment enrollment = Enrollment.of(enrollmentId, lectureId, userId);
         given(enrollmentRepository.save(any(Enrollment.class))).willReturn(enrollment);
+        // 특강을 특록후 특강 등록 히스토리에 저장
+        EnrollmentHistory enrollmentHistory = EnrollmentHistory.of(enrollment);
+        given(enrollmentHistoryRepository.save(any(EnrollmentHistory.class))).willReturn(enrollmentHistory);
 
         // when
-        sut.applyLecture(requestDto);
+        sut.enrollLecture(EnrollmentRequestDto.of(lectureId, userId));
 
         // then
         then(lectureRepository).should().findById(lectureId);
-        then(userAccountRepository).should().findById(userId);
+        then(userRepository).should().findById(userId);
+        then(enrollmentHistoryRepository).should().save(any(EnrollmentHistory.class));
 
         ArgumentCaptor<Enrollment> enrollmentCaptor = ArgumentCaptor.forClass(Enrollment.class);
         then(enrollmentRepository).should().save(enrollmentCaptor.capture());
@@ -79,11 +83,23 @@ class LectureServiceTest {
         long lectureId = 1L;
         long userId = 1L;
         Lecture lecture = Lecture.of(lectureId);
-        
+        User user = User.of(userId);
+        List<Enrollment> enrollments = enrollments();
+
+        // 특강 조회
+        given(lectureRepository.findById(lectureId)).willReturn(lecture);
+        // 유저 조회
+        given(userRepository.findById(userId)).willReturn(user);
+        // 특강 id를 이용하여 특강에 등록한 학생목록 조회
+        given(enrollmentRepository.findAllByLectureId(lectureId)).willReturn(enrollments);
 
         // when
+        Throwable t = catchThrowable(() -> sut.enrollLecture(EnrollmentRequestDto.of(lectureId, userId)));
 
         // then
+        assertThat(t)
+                .isInstanceOf(ApplicationException.class)
+                .hasMessageContaining("이미 강의를 신청한 유저입니다. id - %d".formatted(userId));
     }
 
     @DisplayName("특강신청시 등록할 수 있는 학생수가 초과되면 예외를 반환한다")
@@ -93,24 +109,17 @@ class LectureServiceTest {
         long lectureId = 1L;
         long userId = 6L;
         int userLimit = 5;
-        String lectureName = "special-lecture";
-        LectureRequestDto requestDto = LectureRequestDto.of(lectureId, userId);
-        Lecture lecture = Lecture.of(lectureId, lectureName, userLimit);
-        List<Enrollment> enrollments = List.of(
-                Enrollment.of(1L, 1L, 1L),
-                Enrollment.of(2L, 1L, 2L),
-                Enrollment.of(3L, 1L, 3L),
-                Enrollment.of(4L, 1L, 4L),
-                Enrollment.of(4L, 1L, 5L)
-        );
+        EnrollmentRequestDto requestDto = EnrollmentRequestDto.of(lectureId, userId);
+        Lecture lecture = Lecture.of(lectureId, userLimit);
+        User user = User.of(userId);
+        List<Enrollment> enrollments = enrollments();
 
-        UserAccount userAccount = UserAccount.of(userId);
         given(lectureRepository.findById(lectureId)).willReturn(lecture);
-        given(userAccountRepository.findById(userId)).willReturn(userAccount);
+        given(userRepository.findById(userId)).willReturn(user);
         given(enrollmentRepository.findAllByLectureId(lectureId)).willReturn(enrollments);
 
         // when
-        Throwable t = catchThrowable(() -> sut.applyLecture(requestDto));
+        Throwable t = catchThrowable(() -> sut.enrollLecture(requestDto));
 
         // then
         assertThat(t)
@@ -122,23 +131,27 @@ class LectureServiceTest {
     @Test
     void givenNothing_whenRequestingLectures_thenReturnLectures() {
         // given
+        LocalDateTime lecture1OpenedAt = LocalDateTime.now();
+        LocalDateTime lecture2OpenedAt = LocalDateTime.now();
         List<Lecture> list = List.of(
-                Lecture.of(1L, "special", 30, LocalDate.now()),
-                Lecture.of(2L, "special2", 40, LocalDate.now())
+                Lecture.of(1L, 30, LectureInfo.of(1L, "lecture1", lecture1OpenedAt)),
+                Lecture.of(2L, 40, LectureInfo.of(2L, "lecture2", lecture2OpenedAt))
         );
         given(lectureRepository.findAll()).willReturn(list);
+        List<LectureResponseDto> lectureDtos = list.stream().map(LectureResponseDto::from).toList();
 
         // when
         List<LectureResponseDto> lectures = sut.selectLectures();
 
         // then
         assertThat(lectures).isNotNull();
-        assertThat(lectures.size()).isEqualTo(2);
+        assertThat(lectures.get(0).openedAt()).isEqualTo(lectureDtos.get(0).openedAt());
+        assertThat(lectures.size()).isEqualTo(lectureDtos.size());
         assertThat(lectures)
-                .extracting("id", "name", "limitUser")
+                .extracting("id", "userLimit", "lectureInfoDto")
                 .containsExactlyInAnyOrder(
-                        tuple(1L, "special", 30),
-                        tuple(2L, "special2", 40)
+                        tuple(1L, 30, LectureInfoResponseDto.of(1L, "lecture1", lecture1OpenedAt)),
+                        tuple(2L, 40, LectureInfoResponseDto.of(2L, "lecture2", lecture2OpenedAt))
                 );
 
         then(lectureRepository).should().findAll();
@@ -160,35 +173,45 @@ class LectureServiceTest {
         then(lectureRepository).should().findAll();
     }
 
-    @DisplayName("유저아이디가 신청자 목록에 있다면 `true`를 리턴한다.")
+    @DisplayName("유저가 신청자 목록에 있다면 목록을 반환한다.")
     @Test
     void givenUserId_whenVerifyIfUserOnLectureList_thenTrue() {
         // given
-        long lectureId = 1L;
         long userId = 1L;
-        Enrollment enrollment = Enrollment.of(lectureId, userId);
 
-        given(enrollmentRepository.findByUserId(userId)).willReturn(enrollment);
+        given(enrollmentRepository.findAllByUserId(userId)).willReturn(enrollments());
 
         // when
-        boolean result = sut.hasUserIdOnLectureUserList(userId);
+        List<EnrollmentResponseDto> responseDtos = sut.hasUserIdOnLectureUserList(userId);
 
         // then
-        assertThat(result).isTrue();
+        assertThat(responseDtos.size()).isEqualTo(5);
     }
 
-    @DisplayName("유저아이디가 신청자 목록에 없다면 `false`를 리턴한다.")
+    @DisplayName("유저가 신청자 목록에 없다면 예외를 던진다.")
     @Test
-    void givenUserId_whenVerifyIfUserNotOnLectureList_thenFalse() {
+    void givenUserId_whenVerifyIfUserNotOnLectureList_thenThrowException() {
         // given
         long userId = 1L;
-        given(enrollmentRepository.findByUserId(userId)).willReturn(null);
+        given(enrollmentRepository.findAllByUserId(userId)).willReturn(List.of());
 
         // when
-        boolean result = sut.hasUserIdOnLectureUserList(userId);
+        Throwable t = catchThrowable(() -> sut.hasUserIdOnLectureUserList(userId));
 
         // then
-        assertThat(result).isFalse();
+        assertThat(t)
+                .isInstanceOf(ApplicationException.class)
+                .hasMessageContaining("등록된 특강이 없습니다.");
+    }
+
+    private List<Enrollment> enrollments() {
+        return List.of(
+                Enrollment.of(1L, 1L, 1L),
+                Enrollment.of(2L, 1L, 2L),
+                Enrollment.of(3L, 1L, 3L),
+                Enrollment.of(4L, 1L, 4L),
+                Enrollment.of(4L, 1L, 5L)
+        );
     }
 
 }

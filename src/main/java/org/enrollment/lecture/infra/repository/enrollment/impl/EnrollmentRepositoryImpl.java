@@ -6,7 +6,7 @@ import org.enrollment.lecture.domain.entity.Enrollment;
 import org.enrollment.lecture.infra.exception.ApplicationException;
 import org.enrollment.lecture.infra.exception.ErrorCode;
 import org.enrollment.lecture.infra.repository.enrollment.EnrollmentJpaRepository;
-import org.enrollment.lecture.infra.repository.enrollment.EnrollmentRepository;
+import org.enrollment.lecture.domain.repository.EnrollmentRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,6 +26,11 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
     @Override
     public List<Enrollment> findAllByLectureId(Long lectureId) {
         return enrollmentJpaRepository.findAllByLectureId(lectureId);
+    }
+
+    @Override
+    public List<Enrollment> findAllByUserId(Long userId) {
+        return enrollmentJpaRepository.findAllByUserId(userId);
     }
 
     @Override

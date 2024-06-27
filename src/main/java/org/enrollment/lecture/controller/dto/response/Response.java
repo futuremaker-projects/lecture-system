@@ -1,4 +1,4 @@
-package org.enrollment.lecture.domain.dto.response;
+package org.enrollment.lecture.controller.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package org.enrollment.lecture.infra.repository.lecture;
+package org.enrollment.lecture.domain.repository;
 
 import org.enrollment.lecture.domain.entity.Lecture;
 

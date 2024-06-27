@@ -1,4 +1,4 @@
-package org.enrollment.lecture.domain.dto.lecture;
+package org.enrollment.lecture.controller.dto.lecture;
 
 public record LectureRequestDto(long lectureId, long userId) {
 

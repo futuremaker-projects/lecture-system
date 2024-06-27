@@ -1,7 +1,7 @@
 package org.enrollment.lecture.infra.exception;
 
 import lombok.extern.slf4j.Slf4j;
-import org.enrollment.lecture.domain.dto.response.Response;
+import org.enrollment.lecture.controller.dto.response.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

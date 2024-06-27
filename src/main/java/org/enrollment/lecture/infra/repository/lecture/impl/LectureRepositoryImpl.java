@@ -1,12 +1,11 @@
 package org.enrollment.lecture.infra.repository.lecture.impl;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.enrollment.lecture.domain.entity.Lecture;
 import org.enrollment.lecture.infra.exception.ApplicationException;
 import org.enrollment.lecture.infra.exception.ErrorCode;
 import org.enrollment.lecture.infra.repository.lecture.LectureJpaRepository;
-import org.enrollment.lecture.infra.repository.lecture.LectureRepository;
+import org.enrollment.lecture.domain.repository.LectureRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
