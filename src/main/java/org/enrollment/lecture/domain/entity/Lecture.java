@@ -61,11 +61,11 @@ public class Lecture {
         return new Lecture(id, userLimit, lectureInfo, LocalDateTime.now());
     }
 
-        public void checkIfExceededUserLimit(List<Enrollment> enrolledLectures) {
-            if (this.userLimit <= enrolledLectures.size()) {
-                throw new ApplicationException(ErrorCode.CONFLICT, "등록할 수 있는 학생수를 초과하였습니다. 수강가능 학생수 - %d".formatted(this.userLimit));
-            }
+    public void checkIfExceededUserLimit(List<Enrollment> enrolledLectures) {
+        if (this.userLimit <= enrolledLectures.size()) {
+            throw new ApplicationException(ErrorCode.CONFLICT, "등록할 수 있는 학생수를 초과하였습니다. 수강가능 학생수 - %d".formatted(this.userLimit));
         }
+    }
 
     @Override
     public boolean equals(Object o) {
