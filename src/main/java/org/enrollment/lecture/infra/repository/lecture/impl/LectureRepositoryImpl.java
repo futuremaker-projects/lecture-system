@@ -23,7 +23,7 @@ public class LectureRepositoryImpl implements LectureRepository {
 
     @Override
     public Lecture findById(Long id) {
-        return lectureJpaRepository.findById(id).orElseThrow(
+        return lectureJpaRepository.findByIdWithLock(id).orElseThrow(
                 () -> new ApplicationException(ErrorCode.CONTENT_NOT_FOUND, "enrollment not found : id - %d".formatted(id)));
     }
 }
