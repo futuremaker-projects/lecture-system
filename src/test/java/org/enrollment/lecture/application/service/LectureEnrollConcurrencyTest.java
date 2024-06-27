@@ -23,6 +23,10 @@ public class LectureEnrollConcurrencyTest {
     @Autowired
     private EnrollmentRepository enrollmentRepository;
 
+    /**
+     * 100명의 사용자가 임의로 30개의 Thread 를 사용하여 특강 등록 시도시
+     *  제한된 30명의 사용자만 특강을 신청할 수 있는지 테스트함
+     */
     @Test
     void given_when_then() throws InterruptedException {
         // given
