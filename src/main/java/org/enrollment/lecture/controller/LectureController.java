@@ -40,7 +40,7 @@ public class LectureController {
      */
     @GetMapping("/application/{userId}")
     public ResponseEntity<List<EnrollmentResponseDto>> verifyAppliedLecture(@PathVariable("userId") Long userId) {
-        return ResponseEntity.ok(lectureService.hasUserIdOnLectureUserList(userId));
+        return ResponseEntity.ok(lectureService.selectAllEnrolledLecturesByUserId(userId));
     }
 
 }

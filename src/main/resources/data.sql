@@ -1,11 +1,20 @@
-insert into lecture (name, opened_at, limit_user) values ('special-lecture1', '2024-06-25', 30),
-                                                         ('special-lecture2', '2024-06-10', 40),
-                                                         ('special-lecture3', '2024-06-01', 50),
-                                                         ('special-lecture4', '2024-06-30', 30),
-                                                         ('special-lecture5', '2024-06-15', 40),
-                                                         ('special-lecture6', '2024-06-08', 80);
+insert into lecture_info (`name`, `created_at`) values ('special-lecture1', '2024-06-25'),
+                                                      ('special-lecture2', '2024-06-10'),
+                                                      ('special-lecture3', '2024-06-01'),
+                                                      ('special-lecture4', '2024-06-30'),
+                                                      ('special-lecture5', '2024-06-15'),
+                                                      ('special-lecture6', '2024-06-08');
 
-insert into user_account (name) values ('Catie'),
+insert into lecture (`lecture_info_id`, `opened_at`, `user_limit`) values (1, '2024-06-25', 30),
+                                                         (1, '2024-06-10', 40),
+                                                         (2, '2024-06-01', 50),
+                                                         (3, '2024-06-30', 30),
+                                                         (3, '2024-06-15', 40),
+                                                         (4, '2024-06-08', 20),
+                                                         (5, '2024-06-08', 20),
+                                                         (6, '2024-06-08', 20);
+
+insert into user (`name`) values ('Catie'),
                                        ('Star'),
                                        ('Petronella'),
                                        ('Ellie'),

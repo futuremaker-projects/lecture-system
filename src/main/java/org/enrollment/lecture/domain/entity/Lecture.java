@@ -29,7 +29,7 @@ public class Lecture {
     @Column(nullable = false)
     private Integer userLimit;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lecture_info_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private LectureInfo lectureInfo;
 

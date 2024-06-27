@@ -23,11 +23,11 @@ public class LectureInfo {
     @Column(columnDefinition = "VARCHAR(50) NOT NULL COMMENT '강의명'")
     private String name;
 
-    private LocalDateTime openedAt;
+    private LocalDateTime createdAt;
 
     @PrePersist
     void openedAt() {
-        openedAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
     }
 
     public LectureInfo(Long id, String name) {

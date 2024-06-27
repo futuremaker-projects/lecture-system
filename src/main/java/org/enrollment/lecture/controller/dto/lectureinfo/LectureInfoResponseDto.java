@@ -17,7 +17,7 @@ public record LectureInfoResponseDto(
 
     public static LectureInfoResponseDto from(LectureInfo lectureInfo) {
         return LectureInfoResponseDto.of(
-                lectureInfo.getId(), lectureInfo.getName(), lectureInfo.getOpenedAt()
+                lectureInfo.getId(), lectureInfo.getName(), lectureInfo.getCreatedAt()
         );
     }
 
