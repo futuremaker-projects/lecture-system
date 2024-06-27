@@ -1,4 +1,4 @@
-package org.enrollment.lecture.application.service.impl;
+package org.enrollment.lecture.application.service;
 
 import org.enrollment.lecture.controller.dto.enrollment.EnrollmentRequestDto;
 import org.enrollment.lecture.controller.dto.enrollment.EnrollmentResponseDto;
@@ -182,7 +182,7 @@ class LectureServiceTest {
         given(enrollmentRepository.findAllByUserId(userId)).willReturn(enrollments());
 
         // when
-        List<EnrollmentResponseDto> responseDtos = sut.hasUserIdOnLectureUserList(userId);
+        List<EnrollmentResponseDto> responseDtos = sut.selectAllEnrolledLecturesByUserId(userId);
 
         // then
         assertThat(responseDtos.size()).isEqualTo(5);
@@ -196,7 +196,7 @@ class LectureServiceTest {
         given(enrollmentRepository.findAllByUserId(userId)).willReturn(List.of());
 
         // when
-        Throwable t = catchThrowable(() -> sut.hasUserIdOnLectureUserList(userId));
+        Throwable t = catchThrowable(() -> sut.selectAllEnrolledLecturesByUserId(userId));
 
         // then
         assertThat(t)

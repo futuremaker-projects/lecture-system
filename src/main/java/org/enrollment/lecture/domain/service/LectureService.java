@@ -67,7 +67,7 @@ public class LectureService {
      * 특정 유저 id로 해당 유저가 등록한 모든 특강 목록을 조회한다.
      *   - 등록한 특강이 없을시 예외를 발생시킨다.
      */
-    public List<EnrollmentResponseDto> hasUserIdOnLectureUserList(Long userId) {
+    public List<EnrollmentResponseDto> selectAllEnrolledLecturesByUserId(Long userId) {
         List<EnrollmentResponseDto> list = enrollmentRepository.findAllByUserId(userId).stream()
                 .map(EnrollmentResponseDto::from)
                 .toList();
