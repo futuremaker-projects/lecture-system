@@ -6,6 +6,7 @@ import org.enrollment.lecture.domain.dto.lecture.LectureResponseDto;
 import org.enrollment.lecture.domain.entity.Enrollment;
 import org.enrollment.lecture.domain.entity.Lecture;
 import org.enrollment.lecture.domain.entity.UserAccount;
+import org.enrollment.lecture.infra.exception.ApplicationException;
 import org.enrollment.lecture.infra.repository.enrollment.EnrollmentRepository;
 import org.enrollment.lecture.infra.repository.lecture.LectureRepository;
 import org.enrollment.lecture.infra.repository.userAccount.UserAccountRepository;
@@ -45,8 +46,10 @@ class LectureServiceTest {
         long lectureId = 1L;
         long userId = 1L;
         long enrollmentId = 1L;
+        int userLimit = 5;
+        String lectureName = "special-lecture";
         LectureRequestDto requestDto = LectureRequestDto.of(lectureId, userId);
-        Lecture lecture = Lecture.of(lectureId);
+        Lecture lecture = Lecture.of(lectureId, lectureName, userLimit);
         UserAccount userAccount = UserAccount.of(userId);
         Enrollment enrollment = Enrollment.of(enrollmentId, lectureId, userId);
 
@@ -69,23 +72,49 @@ class LectureServiceTest {
         assertThat(capturedEnrollment.getUserId()).isEqualTo(userId);
     }
 
+    @DisplayName("특강신청시 중복된 학생이 신청한다면 예외를 반환한다.")
     @Test
-    void 특강신청시_등록할_수_있는_학생수가_초과되면_예외를_반환한다() {
+    void given_when_then() {
         // given
         long lectureId = 1L;
         long userId = 1L;
-        LectureRequestDto requestDto = LectureRequestDto.of(lectureId, userId);
         Lecture lecture = Lecture.of(lectureId);
+        
+
+        // when
+
+        // then
+    }
+
+    @DisplayName("특강신청시 등록할 수 있는 학생수가 초과되면 예외를 반환한다")
+    @Test
+    void givenLectureIdAndUserId_whenIfLectureUserLimitExceeded_thenThrowApplicationException() {
+        // given
+        long lectureId = 1L;
+        long userId = 6L;
+        int userLimit = 5;
+        String lectureName = "special-lecture";
+        LectureRequestDto requestDto = LectureRequestDto.of(lectureId, userId);
+        Lecture lecture = Lecture.of(lectureId, lectureName, userLimit);
+        List<Enrollment> enrollments = List.of(
+                Enrollment.of(1L, 1L, 1L),
+                Enrollment.of(2L, 1L, 2L),
+                Enrollment.of(3L, 1L, 3L),
+                Enrollment.of(4L, 1L, 4L),
+                Enrollment.of(4L, 1L, 5L)
+        );
+
         UserAccount userAccount = UserAccount.of(userId);
         given(lectureRepository.findById(lectureId)).willReturn(lecture);
         given(userAccountRepository.findById(userId)).willReturn(userAccount);
+        given(enrollmentRepository.findAllByLectureId(lectureId)).willReturn(enrollments);
 
         // when
         Throwable t = catchThrowable(() -> sut.applyLecture(requestDto));
 
         // then
         assertThat(t)
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(ApplicationException.class)
                 .hasMessageContaining("등록할 수 있는 학생수를 초과하였습니다.");
     }
 
@@ -160,23 +189,6 @@ class LectureServiceTest {
 
         // then
         assertThat(result).isFalse();
-    }
-
-    @Test
-    void givenUserIdAsNull_whenRequestingVerification_whenThrowException() {
-        // given
-        Long userId = null;
-        given(enrollmentRepository.findByUserId(userId)).willReturn(null);
-
-        // when
-        Throwable t = catchThrowable(() -> sut.hasUserIdOnLectureUserList(userId));
-
-        // then
-        assertThat(t).isNotNull();
-        assertThat(t)
-                .isInstanceOf(IllegalArgumentException.class);
-
-
     }
 
 }

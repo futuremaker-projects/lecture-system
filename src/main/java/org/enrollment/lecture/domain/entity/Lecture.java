@@ -45,4 +45,8 @@ public class Lecture {
     public static Lecture of(long lectureId) {
         return new Lecture(lectureId);
     }
+
+    public static Lecture of(long lectureId, String name, int limitUser) {
+        return new Lecture(lectureId, name, limitUser, LocalDate.now());
+    }
 }

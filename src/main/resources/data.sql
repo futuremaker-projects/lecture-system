@@ -1,9 +1,9 @@
 insert into lecture (name, opened_at, limit_user) values ('special-lecture1', '2024-06-25', 30),
-                                                         ('special-lecture2', '2024-06-25', 40),
-                                                         ('special-lecture3', '2024-06-25', 50),
-                                                         ('special-lecture4', '2024-06-25', 30),
-                                                         ('special-lecture5', '2024-06-25', 40),
-                                                         ('special-lecture6', '2024-06-25', 80);
+                                                         ('special-lecture2', '2024-06-10', 40),
+                                                         ('special-lecture3', '2024-06-01', 50),
+                                                         ('special-lecture4', '2024-06-30', 30),
+                                                         ('special-lecture5', '2024-06-15', 40),
+                                                         ('special-lecture6', '2024-06-08', 80);
 
 insert into user_account (name) values ('Catie'),
                                        ('Star'),

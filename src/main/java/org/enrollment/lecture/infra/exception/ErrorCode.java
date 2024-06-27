@@ -9,7 +9,9 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     CONTENT_NOT_FOUND(HttpStatus.GONE, "CONTENT_NOT_FOUND"),
-    CONFLICT(HttpStatus.CONFLICT, "CONFLICT")
+    CONFLICT(HttpStatus.CONFLICT, "CONFLICT"),
+
+    USER_EXISTED(HttpStatus.CONFLICT, "USER_EXISTED"),
 
     ;
 

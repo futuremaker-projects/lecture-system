@@ -20,6 +20,6 @@ public class ApplicationException extends RuntimeException {
         if (message == null) {
             return errorCode.getMessage();
         }
-        return "%s, %s".formatted(errorCode.getMessage(), message);
+        return message;
     }
 }

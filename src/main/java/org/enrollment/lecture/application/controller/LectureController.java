@@ -56,7 +56,7 @@ public class LectureController {
     @GetMapping("/application/{userId}")
     public Response<Boolean> verifyAppliedLecture(@PathVariable("userId") Long userId) {
         boolean result = lectureService.hasUserIdOnLectureUserList(userId);
-        return Response.success(true);
+        return Response.success(result);
     }
 
 }
