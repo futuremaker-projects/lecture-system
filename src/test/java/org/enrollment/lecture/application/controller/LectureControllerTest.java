@@ -1,13 +1,14 @@
 package org.enrollment.lecture.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.enrollment.lecture.controller.LectureController;
 import org.enrollment.lecture.controller.dto.enrollment.EnrollmentRequestDto;
+import org.enrollment.lecture.controller.dto.enrollment.EnrollmentResponseDto;
 import org.enrollment.lecture.controller.dto.lecture.LectureResponseDto;
+import org.enrollment.lecture.domain.entity.Enrollment;
 import org.enrollment.lecture.domain.entity.Lecture;
 import org.enrollment.lecture.domain.entity.LectureInfo;
 import org.enrollment.lecture.domain.service.LectureService;
-import org.enrollment.lecture.controller.LectureController;
-import org.enrollment.lecture.controller.dto.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -87,22 +88,32 @@ class LectureControllerTest {
         then(lectureService).should().selectLectures();
     }
 
-    @DisplayName("")
+    @DisplayName("유저 id를 받아 특강목록을 요청하면 등록된 특강목록을 반환한다.")
     @Test
-    void 등록된_특강을_사용자아이디로_조회한다() throws Exception {
+    void givenUserId_whenRequestingEnrolledLecturesByUserId_thenReturnsEnrollmentResponseDtoList() throws Exception {
         // given
         long userId = 1L;
-        boolean result = true;
 
-//        given(lectureService.hasUserIdOnLectureUserList(userId)).willReturn(result);
+        List<EnrollmentResponseDto> responseDtos = enrollments().stream().map(EnrollmentResponseDto::from).toList();
+        given(lectureService.selectAllEnrolledLecturesByUserId(userId)).willReturn(responseDtos);
 
         // when
         mockMvc.perform(get("/api/lectures/application/%d".formatted(userId)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().bytes(objectMapper.writeValueAsBytes(Response.success(true))));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(responseDtos)));
 
         // then
-        then(lectureService).should().hasUserIdOnLectureUserList(userId);
+        then(lectureService).should().selectAllEnrolledLecturesByUserId(userId);
+    }
+
+    private List<Enrollment> enrollments() {
+        return List.of(
+                Enrollment.of(1L, 1L, 1L),
+                Enrollment.of(2L, 1L, 2L),
+                Enrollment.of(3L, 1L, 3L),
+                Enrollment.of(4L, 1L, 4L),
+                Enrollment.of(4L, 1L, 5L)
+        );
     }
 }
