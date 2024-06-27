@@ -28,26 +28,26 @@ public class LectureService {
     private final EnrollmentRepository enrollmentRepository;
     private final EnrollmentHistoryRepository enrollmentHistoryRepository;
 
-    /**
-     * lecture_id와 user_id를 받아 특강을 등록한다.
-     *  - 이미 특강에 등록된 유저는 같은 강의 등록시도시 예외를 발생시킨다.
-     *  - 특강의 정해진 정원이상 등록시도시 예외를 발생시킨다. (특강마다 정원은 다르며 기본정원은 30명이다)
-     */
-    @Transactional
-    public void enrollLecture(EnrollmentRequestDto requestDto) {
-        Lecture lecture = lectureRepository.findById(requestDto.lectureId());
-        User user = userRepository.findById(requestDto.userId());
-        List<Enrollment>  enrolledLectures = enrollmentRepository.findAllByLectureId(requestDto.lectureId());
+        /**
+         * lecture_id와 user_id를 받아 특강을 등록한다.
+         *  - 이미 특강에 등록된 유저는 같은 강의 등록시도시 예외를 발생시킨다.
+         *  - 특강의 정해진 정원이상 등록시도시 예외를 발생시킨다. (특강마다 정원은 다르며 기본정원은 30명이다)
+         */
+        @Transactional
+        public void enrollLecture(EnrollmentRequestDto requestDto) {
+            Lecture lecture = lectureRepository.findById(requestDto.lectureId());
+            User user = userRepository.findById(requestDto.userId());
+            List<Enrollment>  enrolledLectures = enrollmentRepository.findAllByLectureId(requestDto.lectureId());
 
-        Enrollment enrollment = Enrollment.of(lecture.getId(), user.getId());
-        // 특강을 틍록하고자하는 유저가 이미 특강을 등록했다면 예외를 발생시킨다.
-        enrollment.checkIfExistedUserId(enrolledLectures, user.getId());
-        // 특정 특강의 정해진 정원초과시 예외를 발생시킨다.
-        lecture.checkIfExceededUserLimit(enrolledLectures);
+            Enrollment enrollment = Enrollment.of(lecture.getId(), user.getId());
+            // 특강을 틍록하고자하는 유저가 이미 특강을 등록했다면 예외를 발생시킨다.
+            enrollment.checkIfExistedUserId(enrolledLectures, user.getId());
+            // 특정 특강의 정해진 정원초과시 예외를 발생시킨다.
+            lecture.checkIfExceededUserLimit(enrolledLectures);
 
-        Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
-        enrollmentHistoryRepository.save(EnrollmentHistory.of(savedEnrollment));
-    }
+            Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
+            enrollmentHistoryRepository.save(EnrollmentHistory.of(savedEnrollment));
+        }
 
     /**
      * 특강목록을 조회시 모든 특강을 반환한다.
