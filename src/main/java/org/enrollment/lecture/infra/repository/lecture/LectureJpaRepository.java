@@ -13,11 +13,11 @@ import java.util.Optional;
 
 public interface LectureJpaRepository extends JpaRepository<Lecture, Long> {
 
-        @Lock(LockModeType.PESSIMISTIC_WRITE)
-        @QueryHints({
-                @QueryHint(name = "jakarta.persistence.lock.timeout", value = "1500")
-        })
-        @Query("SELECT l FROM Lecture l WHERE l.id = :id")
-        Optional<Lecture> findByIdWithLock(@Param("id") Long id);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({
+        @QueryHint(name = "jakarta.persistence.lock.timeout", value = "1500")
+    })
+    @Query("SELECT l FROM Lecture l WHERE l.id = :id")
+    Optional<Lecture> findByIdWithLock(@Param("id") Long id);
 
 }

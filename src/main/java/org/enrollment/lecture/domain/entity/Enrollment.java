@@ -53,12 +53,12 @@ public class Enrollment {
         enrolledAt = LocalDateTime.now();
     }
 
-        public void checkIfExistedUserId(List<Enrollment> enrolledLectures, Long userId) {
-            List<Long> enrolledUserIds = enrolledLectures.stream().map(Enrollment::getUserId).toList();
-            if (enrolledUserIds.contains(userId)){
-                throw new ApplicationException(ErrorCode.USER_EXISTED, "이미 강의를 신청한 유저입니다. id - %d".formatted(userId));
-            }
+    public void checkIfExistedUserId(List<Enrollment> enrolledLectures, Long userId) {
+        List<Long> enrolledUserIds = enrolledLectures.stream().map(Enrollment::getUserId).toList();
+        if (enrolledUserIds.contains(userId)){
+            throw new ApplicationException(ErrorCode.USER_EXISTED, "이미 강의를 신청한 유저입니다. id - %d".formatted(userId));
         }
+    }
 
     @Override
     public boolean equals(Object o) {
